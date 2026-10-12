@@ -1,5 +1,3 @@
-locations_draft <- data.frame()
-
 extract_valid_points <- function(point_sf) {
   coords <- st_coordinates(point_sf)
 
@@ -51,7 +49,8 @@ generate_random_points <- function(polygon, n = 1) {
 
 generate_locations <- function(polygon, number_of_sites) {
   polygon_sf <- st_sfc(st_as_sfc(polygon), crs = 4326)
-
+  locations_draft <- data.frame()
+  
   locations_draft <- map_dfr(
     1:number_of_sites,
     ~ st_coordinates(

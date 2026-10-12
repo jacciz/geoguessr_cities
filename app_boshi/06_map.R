@@ -1,7 +1,6 @@
 create_map_of_guesses_by_location <- function(
   score_by_location,
   seqnum_i,
-  # google_file_path,
   starting_view,
   url
 ) {
@@ -14,7 +13,9 @@ create_map_of_guesses_by_location <- function(
   filtered_data <- score_by_location %>% dplyr::filter(seqnum == seqnum_i)
 
   # Create a leaflet map
-  map <- leaflet() %>%
+  map <- leaflet(
+    # height = "100%", width = "100%"
+    ) %>%
     # addProviderTiles(providers$CartoDB.Positron)
     addTiles(
       urlTemplate = url,
@@ -87,33 +88,7 @@ create_map_of_guesses_by_location <- function(
       lat = starting_view[["lat"]],
       zoom = 10
     )
-  # }
-
-  # Render the map
-  # print(max(filtered_data$seqnum))
+  
   map
 
-  # Create a temporary local HTML file
-  # tmp_html <- tempfile(fileext = ".html")
-  #
-  # htmlwidgets::saveWidget(
-  #   map,
-  #   file = tmp_html,
-  #   selfcontained = TRUE
-  # )
-  #
-  # # Upload to Google Drive
-  # googledrive::drive_upload(
-  #   media = tmp_html,
-  #   path = google_file_path,
-  #   name = paste0(
-  #     "round_",
-  #     round_no,
-  #     "_location_",
-  #     max(filtered_data$seqnum),
-  #     ".html"
-  #   ),
-  #   overwrite = TRUE
-  # )
-  # }
 }
