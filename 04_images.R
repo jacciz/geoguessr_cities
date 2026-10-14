@@ -56,7 +56,7 @@ for (i in 1:nrow(locations)) {
     googledrive::drive_upload(
       media = tmp_file,
       path = google_folder,
-      name = paste0("location_", i, "_pano.jpg"),
+      name = paste0("location_",i,"_image_",j,".jpg"),
       overwrite = TRUE
     )
 
@@ -70,77 +70,3 @@ for (i in 1:nrow(locations)) {
   }
 }
 
-if (pano == "on") {
-  for (i in 1:nrow(locations)) {
-    file_paths <- c(
-      paste0(
-        output_location,
-        "Round ",
-        round_no,
-        "/location_",
-        i,
-        "_image_1.jpg"
-      ),
-      paste0(
-        output_location,
-        "Round ",
-        round_no,
-        "/location_",
-        i,
-        "_image_2.jpg"
-      ),
-      paste0(
-        output_location,
-        "Round ",
-        round_no,
-        "/location_",
-        i,
-        "_image_3.jpg"
-      ),
-      paste0(
-        output_location,
-        "Round ",
-        round_no,
-        "/location_",
-        i,
-        "_image_4.jpg"
-      ),
-      paste0(
-        output_location,
-        "Round ",
-        round_no,
-        "/location_",
-        i,
-        "_image_5.jpg"
-      )
-    )
-
-    images <- lapply(file_paths, magick::image_read)
-
-    stitched_image <- magick::image_append(
-      magick::image_join(images),
-      stack = FALSE
-    )
-
-    # Write locally first
-    tmp_file <- tempfile(fileext = ".jpg")
-
-    magick::image_write(
-      stitched_image,
-      tmp_file
-    )
-
-    # Upload to Google Drive
-    googledrive::drive_upload(
-      media = tmp_file,
-      path = google_folder,
-      name = paste0("location_", i, "_pano.jpg"),
-      overwrite = TRUE
-    )
-
-    magick::image_write(
-      stitched_image,
-      paste0(output_location, "Round ", round_no, "/location_", i, "_pano.jpg")
-    )
-  }
-}

@@ -1,45 +1,74 @@
-library(tibble)
+# library(tibble)
 library(dplyr)
 library(readr)
 library(sf)
 library(httr)
 library(jsonlite)
 library(purrr)
-library(tidyverse)
-library(janitor)
-library(googlesheets4)
+# library(tidyverse)
+# library(janitor)
+# library(googlesheets4)
 library(stringr)
 library(geosphere)
-library(leaflet)
-library(magick)
-library(metro)
-library(gtfstools)
-
-city <- "DC"        #DC or NYC
 round_no <- 1
-google_sheet_link<-"https://docs.google.com/spreadsheets/d/188wl-XhzJ0fz0TCU9zHMOKmARJes0_Is-VX1b9NZgAs/edit?usp=sharing"
-pano<-"off" #on or off to save panorama pictures of locations
-auto_run<-"yes"
+number_of_sites <- 10
+city <- "Madison"
 
-at_large_percent<-.5
-downtown_percent<-.15
-greater_central_percent<-.25
-metro_percent<-.1
-metro_distance<-150 #distance from metro stations, in feet
+# To upload images
+googledrive::drive_auth()
 
-manhattan_percent<-.43
-brooklyn_percent<-.32
-queens_percent<-.12
-bronx_percent<-.03
-subway_percent<-.10
-subway_distance<-100 #distance from subway stations, in feet
+# RESPONSE FROM USERS
+# google_sheet_link <- "https://docs.google.com/spreadsheets/d/1wtOGecQTVsv8w-fESy0DRQ3kzagE9bqqYv4zz4ZV2u4/edit?usp=sharing"
+google_locations <- "https://docs.google.com/spreadsheets/d/1_onfERhOgAqT4-PEpCp1ggPxFf-JyHYO-nAuTNHI0Kw/edit?usp=drive_link"
+response_spreadsheet_id <- "1wtOGecQTVsv8w-fESy0DRQ3kzagE9bqqYv4zz4ZV2u4"
 
-code_base<-paste0("C:/Users/jwest/github/geoguessr_cities/")
-output_location<-paste0("C:/Users/jwest/github/geoguessr_cities/",city,"/output/")
+pano <- "on" #on or off to save panorama pictures of locations
+auto_run <- "yes"
 
-if (auto_run=="yes"){
-  source(paste0(code_base,"01_borders.R"))
-  source(paste0(code_base,"02_locations.R"))
-  source(paste0(code_base,"03_metadata.R"))
-  source(paste0(code_base,"04_images.R"))
+# output_location <- paste0(city, "/output/")
+
+wi <- tigris::places(state = "WI")
+madison <- wi |> filter(NAME == "Madison") |> st_transform(4326)
+
+polygon_sf <- madison
+sf::write_sf(madison, "app_boshi/madison.shp")
+
+# Clear the spreadsheet
+googlesheets4::range_delete(
+  ss = response_spreadsheet_id,
+  sheet = "Sheet1",
+  range = "Sheet1!A2:ZZ"
+)
+
+if (auto_run == "yes") {
+  # Outputs locations_draft_spaced
+  source("02_locations.R")
+
+  # Saves to locations sheet
+  source("03_metadata.R")
+
+  # Loops through locations to download images
+  source("04_images.R")
 }
+
+# Need to specify url with API so basemap will work
+# mapType <- "CartoDB.Positron"
+# #Map the chosen basemap to the appropriate URL
+# url <- paste0(
+#   switch(
+#     mapType, #This is my selection variable as I use this inside of a shiny app
+#     'CartoDB' = "https://basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png",
+#     'CartoDB.Positron' = "https://basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png",
+#     'CartoDB.PositronNoLabels' = "https://basemaps.cartocdn.com/rastertiles/light_nolabels/{z}/{x}/{y}.png",
+#     'CartoDB.PositronOnlyLabels' = "https://basemaps.cartocdn.com/rastertiles/light_only_labels/{z}/{x}/{y}.png",
+#     'CartoDB.DarkMatter' = "https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png",
+#     'CartoDB.DarkMatterNoLabels' = "https://basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}.png",
+#     'CartoDB.DarkMatterOnlyLabels' = "https://basemaps.cartocdn.com/rastertiles/dark_only_labels/{z}/{x}/{y}.png",
+#     'CartoDB.Voyager' = "https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",
+#     'CartoDB.VoyagerNoLabels' = "https://basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}.png",
+#     'CartoDB.VoyagerOnlyLabels' = "https://basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}.png",
+#     'CartoDB.VoyagerLabelsUnder' = "https://basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}.png"
+#   ),
+#   '?key=',
+#   Sys.getenv('CARTO_MAPS_API_KEY')
+# )

@@ -5,16 +5,11 @@ create_map_of_guesses_by_location <- function(
   url
 ) {
   round_no <- 1
-  # score_by_location <- read_sheet(score_by_location_id)
-  # seqnum_list <- unique(score_by_location$seqnum)
-  # TODO remove duplicates from a user?
-
-  # for (i in 1:length(seqnum_list)) {
+  
   filtered_data <- score_by_location %>% dplyr::filter(seqnum == seqnum_i)
 
   # Create a leaflet map
   map <- leaflet(
-    # height = "100%", width = "100%"
     ) %>%
     # addProviderTiles(providers$CartoDB.Positron)
     addTiles(
@@ -74,13 +69,7 @@ create_map_of_guesses_by_location <- function(
         score
       )
     )
-
-  # if (city=="DC"){
-  #   map<-map%>%
-  #     setView(lng = -77.0369, lat = 38.9072, zoom = 11)
-  #   }
-
-  # if (city=="NYC"){
+  
   map <- map %>%
     setView(
       lng = starting_view[["lng"]],
